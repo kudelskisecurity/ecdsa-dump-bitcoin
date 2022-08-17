@@ -17,8 +17,8 @@ impl SimpleLogger {
 
     fn create_log_line(&self, record: &Record) -> String {
         format!(
-            "[{}] {} - {}: {}\n",
-            OffsetDateTime::now_local().format("%T"),
+            "[{} UTC] {} - {}: {}\n",
+            OffsetDateTime::now_utc().format("%T"),
             record.level().to_string(),
             record.target(),
             record.args()

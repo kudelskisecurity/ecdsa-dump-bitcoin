@@ -19,7 +19,7 @@ pub fn remove_unspents(
     unspents: &mut HashMap<Vec<u8>, UnspentValue>,
 ) -> u64 {
     for input in &tx.value.inputs {
-        let key = input.outpoint.to_bytes();
+        let key = input.input.outpoint.to_bytes();
         if unspents.contains_key(&key) {
             unspents.remove(&key);
         }

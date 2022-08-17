@@ -10,6 +10,7 @@ use crate::blockchain::parser::types::{Bitcoin, CoinType};
 use crate::blockchain::parser::BlockchainParser;
 use crate::callbacks::balances::Balances;
 use crate::callbacks::csvdump::CsvDump;
+use crate::callbacks::sigdump::SigDump;
 use crate::callbacks::stats::SimpleStats;
 use crate::callbacks::unspentcsvdump::UnspentCsvDump;
 use crate::callbacks::Callback;
@@ -27,6 +28,9 @@ extern crate byteorder;
 extern crate rayon;
 extern crate rust_base58;
 extern crate rusty_leveldb;
+extern crate ecdsa;
+extern crate p256;
+extern crate bitcoin_explorer;
 
 #[macro_use]
 pub mod errors;
@@ -166,6 +170,7 @@ fn parse_args() -> OpResult<RefCell<ParserOptions>> {
         // Add callbacks
         .subcommand(UnspentCsvDump::build_subcommand())
         .subcommand(CsvDump::build_subcommand())
+        .subcommand(SigDump::build_subcommand())
         .subcommand(SimpleStats::build_subcommand())
         .subcommand(Balances::build_subcommand())
         .get_matches();
@@ -192,6 +197,8 @@ fn parse_args() -> OpResult<RefCell<ParserOptions>> {
         callback = Box::new(SimpleStats::new(matches)?);
     } else if let Some(ref matches) = matches.subcommand_matches("csvdump") {
         callback = Box::new(CsvDump::new(matches)?);
+    } else if let Some(ref matches) = matches.subcommand_matches("sigdump") {
+        callback = Box::new(SigDump::new(matches)?);
     } else if let Some(ref matches) = matches.subcommand_matches("unspentcsvdump") {
         callback = Box::new(UnspentCsvDump::new(matches)?);
     } else if let Some(ref matches) = matches.subcommand_matches("balances") {

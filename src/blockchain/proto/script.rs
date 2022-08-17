@@ -1,5 +1,6 @@
 use std::convert::From;
-use std::error::{self, Error};
+use std::error;
+use std::error::Error;
 use std::fmt;
 
 use rust_base58::ToBase58;
@@ -57,6 +58,9 @@ pub enum ScriptPattern {
     /// Signature script: <sig>[sig][sig...] <redeemScript>
     Pay2ScriptHash,
 
+    /// SigScript pubkey sig pattern for tx inputs
+    ScriptSig(Vec<u8>, Vec<u8>),
+
     /// Sign Multisig script [BIP11]
     //SignMultiSig,
 
@@ -85,6 +89,7 @@ impl fmt::Display for ScriptPattern {
             ScriptPattern::Pay2PublicKey => write!(f, "Pay2PublicKey"),
             ScriptPattern::Pay2PublicKeyHash => write!(f, "Pay2PublicKeyHash"),
             ScriptPattern::Pay2ScriptHash => write!(f, "Pay2ScriptHash"),
+            ScriptPattern::ScriptSig(_,_) => write!(f, "ScriptSig"),
             ScriptPattern::NotRecognised => write!(f, "NotRecognised"),
             ScriptPattern::Error(ref err) => write!(f, "ScriptError: {}", err),
         }
@@ -267,6 +272,17 @@ impl<'a> ScriptEvaluator<'a> {
         ];
         if ScriptEvaluator::match_stack_pattern(&elements, &p2pk) {
             return ScriptPattern::Pay2PublicKey;
+        }
+
+        // ScriptSig
+        let script_sig = [
+            StackElement::Data(Vec::new()),
+            StackElement::Data(Vec::new()),
+        ];
+        if ScriptEvaluator::match_stack_pattern(&elements, &script_sig) {
+            let signature = elements[0].data().expect("no signature");
+            let pubkey = elements[1].data().expect("no pubkey");
+            return ScriptPattern::ScriptSig(signature, pubkey);
         }
 
         // Pay to Script Hash (p2sh)

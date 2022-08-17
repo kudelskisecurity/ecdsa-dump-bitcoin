@@ -43,6 +43,7 @@ impl<'a> ChainStorage<'a> {
             .read_block(meta.n_data_pos, self.options.borrow().coin_type.version_id)
             .ok()?;
 
+
         if self.options.borrow().verify {
             self.verify(&block);
         }

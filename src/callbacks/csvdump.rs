@@ -6,8 +6,6 @@ use clap::{App, Arg, ArgMatches, SubCommand};
 
 use crate::blockchain::parser::types::CoinType;
 use crate::blockchain::proto::block::Block;
-use crate::blockchain::proto::tx::{EvaluatedTx, EvaluatedTxOut, TxInput};
-use crate::blockchain::proto::Hashed;
 use crate::callbacks::Callback;
 use crate::common::utils;
 use crate::errors::OpResult;
@@ -93,7 +91,7 @@ impl Callback for CsvDump {
             // serialize inputs
             for input in &tx.value.inputs {
                 self.txin_writer
-                    .write_all(input.as_csv(&txid_str).as_bytes())?;
+                    .write_all(input.input.as_csv(&txid_str).as_bytes())?;
             }
             self.in_count += tx.value.in_count.value;
 
@@ -132,73 +130,3 @@ impl Callback for CsvDump {
     }
 }
 
-impl Block {
-    #[inline]
-    fn as_csv(&self, block_height: u64) -> String {
-        // (@hash, height, version, blocksize, @hashPrev, @hashMerkleRoot, nTime, nBits, nNonce)
-        format!(
-            "{};{};{};{};{};{};{};{};{}\n",
-            &utils::arr_to_hex_swapped(&self.header.hash),
-            &block_height,
-            &self.header.value.version,
-            &self.size,
-            &utils::arr_to_hex_swapped(&self.header.value.prev_hash),
-            &utils::arr_to_hex_swapped(&self.header.value.merkle_root),
-            &self.header.value.timestamp,
-            &self.header.value.bits,
-            &self.header.value.nonce
-        )
-    }
-}
-
-impl Hashed<EvaluatedTx> {
-    #[inline]
-    fn as_csv(&self, block_hash: &str) -> String {
-        // (@txid, @hashBlock, version, lockTime)
-        format!(
-            "{};{};{};{}\n",
-            &utils::arr_to_hex_swapped(&self.hash),
-            &block_hash,
-            &self.value.version,
-            &self.value.locktime
-        )
-    }
-}
-
-impl TxInput {
-    #[inline]
-    fn as_csv(&self, txid: &str) -> String {
-        // (@txid, @hashPrevOut, indexPrevOut, scriptSig, sequence)
-        format!(
-            "{};{};{};{};{}\n",
-            &txid,
-            &utils::arr_to_hex_swapped(&self.outpoint.txid),
-            &self.outpoint.index,
-            &utils::arr_to_hex(&self.script_sig),
-            &self.seq_no
-        )
-    }
-}
-
-impl EvaluatedTxOut {
-    #[inline]
-    fn as_csv(&self, txid: &str, index: u32) -> String {
-        let address = match self.script.address.clone() {
-            Some(address) => address,
-            None => {
-                debug!(target: "csvdump", "Unable to evaluate address for utxo in txid: {} ({})", txid, self.script.pattern);
-                String::new()
-            }
-        };
-
-        // (@txid, indexOut, value, @scriptPubKey, address)
-        format!(
-            "{};{};{};{};{}\n",
-            &txid,
-            &index,
-            &self.out.value,
-            &utils::arr_to_hex(&self.out.script_pubkey),
-            &address
-        )
-    }
-}
