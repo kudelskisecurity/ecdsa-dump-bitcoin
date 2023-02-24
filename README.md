@@ -6,11 +6,11 @@
 
 Dump bitcoin signatures and original messages
 
-## Changes from upstream
+# Changes from upstream
 
 * Added `sigdump` callback
 
-## Building
+# Building
 
 All you need is Rust, which can be installed using [rustup](https://rustup.rs/).
 
@@ -22,39 +22,27 @@ cargo build --release
 It is important to build with `--release`, for better performance!
 
 
-## Usage
+# Usage
+
 ```
 USAGE:
-    rusty-blockparser [FLAGS] [OPTIONS] [SUBCOMMAND]
+    rusty-blockparser sigdump <dump-folder> <bitcoin-folder>
 
 FLAGS:
     -h, --help       Prints help information
     -V, --version    Prints version information
-    -v               Increases verbosity level. Info=0, Debug=1, Trace=2 (default: 0)
-        --verify     Verifies the leveldb index integrity and verifies merkle roots
 
-OPTIONS:
-    -d, --blockchain-dir <blockchain-dir>    Sets blockchain directory which contains blk.dat files (default:
-                                             ~/.bitcoin/blocks)
-    -c, --coin <NAME>                        Specify blockchain coin (default: bitcoin) [possible values: bitcoin,
-                                             testnet3, namecoin, litecoin, dogecoin, myriadcoin, unobtanium]
-    -e, --end <NUMBER>                       Specify last block for parsing (inclusive) (default: all known blocks)
-    -s, --start <NUMBER>                     Specify starting block for parsing (inclusive)
+ARGS:
+    <dump-folder>       Folder to store csv files
+    <bitcoin-folder>    Path to the .bitcoin folder
 
-SUBCOMMANDS:
-    balances          Dumps all addresses with non-zero balance to CSV file
-    csvdump           Dumps the whole blockchain into CSV files
-    help              Prints this message or the help of the given subcommand(s)
-    sigdump           Dumps signatures to CSV file
-    simplestats       Shows various Blockchain stats
-    unspentcsvdump    Dumps the unspent outputs to CSV file
 ```
-### Example
+# Example
 
 To dump all ecdsa signatures and original messages from the Bitcoin chain, 
 do the following.
 
-First install Bitcoin core and run it with transaction indexing enabled:
+First install [Bitcoin core](https://github.com/bitcoin/bitcoin) and run it with transaction indexing enabled:
 
 ```
 bitcoin-qt -txindex=1
