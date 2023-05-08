@@ -25,6 +25,10 @@ It is important to build with `--release`, for better performance!
 # Usage
 
 ```
+cargo run --release -- sigdump --help
+```
+
+```
 USAGE:
     rusty-blockparser sigdump <dump-folder> <bitcoin-folder>
 
